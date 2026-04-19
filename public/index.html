@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NBIS Dashboard</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>NBIS Dashboard</h1>
+      <p>Price history and company events from your FastAPI backend.</p>
+    </header>
+
+    <section class="panel">
+      <h2>Price history</h2>
+      <pre id="price-output">Loading price data...</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Company events</h2>
+      <div id="events-output">Loading events...</div>
+    </section>
+  </main>
+
+  <script type="module" src="../src/pages/nbis-dashboard.js"></script>
+</body>
+</html>

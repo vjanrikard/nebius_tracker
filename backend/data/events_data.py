@@ -1,0 +1,42 @@
+events = [
+    {
+        "date": "2025-03-15",
+        "title": "Nebius IPO on NASDAQ",
+        "tag": "Market",
+        "impact": "Initial public offering and first day of trading.",
+        "importance": 3,
+        "url": "https://nebius.com/stock-data",
+    },
+    {
+        "date": "2025-05-30",
+        "title": "Nebius AI Data Center Expansion",
+        "tag": "Infra",
+        "impact": "New GPU region announced to support AI workloads.",
+        "importance": 2,
+        "url": "https://nebius.com/newsroom",
+    },
+    {
+        "date": "2025-09-10",
+        "title": "Nebius AI Cloud 3.0 \"Aether\"",
+        "tag": "Product",
+        "impact": "Major release with enterprise security & governance.",
+        "importance": 3,
+        "url": "https://nebius.com/newsroom/nebius-introduces-nebius-ai-cloud-3-0-aether-delivering-enterprise-grade-security-compliance-and-con",
+    },
+    {
+        "date": "2025-11-07",
+        "title": "Post-IPO Lockup Expiry",
+        "tag": "Market",
+        "impact": "Early holders can start selling; volatility increases.",
+        "importance": 2,
+        "url": "https://nebius.com/stock-data",
+    },
+    {
+        "date": "2026-02-12",
+        "title": "Q4 2025 Earnings",
+        "tag": "Earnings",
+        "impact": "High growth but mixed market reaction on guidance.",
+        "importance": 3,
+        "url": "https://nebius.com/stock-data",
+    },
+]
