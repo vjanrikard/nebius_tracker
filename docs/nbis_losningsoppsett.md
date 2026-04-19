@@ -1,13 +1,31 @@
-# NBIS-løsning: forslag til oppsett
+# NBIS-losning: faktisk oppsett i repoet
 
-Dette dokumentet beskriver et enkelt og ryddig oppsett for prosjektet med frontend og backend, basert på repository-planen og FastAPI-scriptet. Frontend-strukturen er tenkt lagt under `src/`, `public/` og `assets/`, mens backend skilles ut i en egen `backend/`-mappe for å holde serverkode adskilt fra frontend-kode [cite:1][cite:4].
+Dette dokumentet beskriver hvordan losningen faktisk er satt opp i dag, ikke bare et forslag.
 
 ## Mappestruktur
 
-Et ryddig utgangspunkt for prosjektet kan se slik ut [cite:1][cite:4]:
-
 ```text
+.github/
+  workflows/
+    deploy-pages.yml
+
+backend/
+  __init__.py
+  main.py
+  data/
+    __init__.py
+    events_data.py
+  routes/
+    __init__.py
+    events.py
+    health.py
+    nbis.py
+  services/
+    __init__.py
+    stooq_service.py
+
 public/
+  config.js
   index.html
 
 src/
@@ -15,86 +33,55 @@ src/
     nbis-dashboard.js
   services/
     api.js
-  components/
-  models/
-  utils/
-  hooks/
 
 assets/
   style.css
 
-backend/
-  main.py
-  __init__.py
-  routes/
-    __init__.py
-    nbis.py
-    events.py
-  services/
-    __init__.py
-    stooq_service.py
-  data/
-    __init__.py
-    events_data.py
+scripts/
+  build-pages.ps1
 
-README.md
+docs/
+  installasjon-og-konfigurasjon.md
+  nbis_losningsoppsett.md
 ```
 
-Denne strukturen bygger på planen din der `src/` brukes til kildekode, `public/` til filer som lastes direkte i nettleseren, `assets/` til statiske ressurser og `README.md` i rotmappen [cite:1]. I tillegg legges FastAPI-koden i en egen `backend/`-mappe fordi den nåværende `backend.py`-filen både oppretter appen, setter CORS og eksponerer API-routes, og derfor naturlig tilhører serverlaget [cite:4].
+## Backend
 
-## Backend-oppsett
+Hovedideen i backend er et tydeleg lagdelt oppsett:
 
-Den opprinnelige `backend.py`-filen gjør flere ting samtidig: oppretter `FastAPI()`-appen, konfigurerer `CORSMiddleware`, henter prisdata fra Stooq og returnerer en statisk eventliste via to API-endepunkter [cite:4]. Derfor er det hensiktsmessig å splitte backend-en i mindre filer med tydelig ansvar [cite:4].
+1. [backend/main.py](../backend/main.py) oppretter FastAPI-app, setter CORS og registrerer routes.
+2. [backend/routes/nbis.py](../backend/routes/nbis.py) eksponerer GET /api/nbis.
+3. [backend/routes/events.py](../backend/routes/events.py) eksponerer GET /api/events.
+4. [backend/routes/health.py](../backend/routes/health.py) eksponerer GET /health.
+5. [backend/services/stooq_service.py](../backend/services/stooq_service.py) bygger Stooq-URL og henter CSV.
+6. [backend/data/events_data.py](../backend/data/events_data.py) holder statisk event-data.
 
-### `backend/main.py`
+NEBIUS_ALLOWED_ORIGINS brukes for ekstra CORS-origins i miljo, med lokale defaults inkludert.
 
-`main.py` bør bare inneholde app-oppsett, CORS-konfigurasjon og registrering av routes [cite:4]. Dette gjør entrypointen enkel å lese og lett å vedlikeholde når flere endepunkter kommer til [cite:4].
+## Frontend
 
-### `backend/routes/`
+Frontend er en statisk app som kan hostes direkte paa GitHub Pages:
 
-`routes/nbis.py` håndterer endepunktet `/api/nbis`, mens `routes/events.py` håndterer `/api/events` [cite:4]. Ved å flytte route-definisjonene ut av hovedfilen blir det tydelig hva som er HTTP-lag og hva som er datalogikk [cite:4].
-
-### `backend/services/`
-
-`services/stooq_service.py` bør inneholde funksjonen som gjør HTTP-kallet mot Stooq, siden dette er ren service-logikk og ikke serveroppsett [cite:4]. Dette samsvarer også med repo-planen din, der `services/` er ment for API-kall og datalogikk [cite:1][cite:4].
-
-### `backend/data/`
-
-`data/events_data.py` inneholder den statiske `events`-listen som i originalfilen ligger direkte inni route-funksjonen [cite:4]. Når denne listen flyttes ut, blir det lettere å utvide med flere hendelser eller senere bytte til scraping eller database [cite:4].
-
-## Frontend-oppsett
-
-Frontend-en kan holdes svært enkel i starten og likevel gi god læring i hvordan lagene henger sammen [cite:1][cite:4]. Siden backend allerede eksponerer `/api/nbis` og `/api/events`, trenger frontend bare en HTML-fil, en JS-fil for API-kall, en sidefil som renderer data, og en CSS-fil for presentasjon [cite:4].
-
-### `public/index.html`
-
-`index.html` fungerer som inngangsside for appen og laster inn global CSS og JavaScript-modulen for dashboardet [cite:1]. Dette passer godt med planen din der `public/` er ment for filer som nettleseren laster direkte [cite:1].
-
-### `src/services/api.js`
-
-`api.js` kapsler inn kallene til backend-endepunktene `/api/nbis` og `/api/events` [cite:4]. Dette gir et tydelig skille mellom presentasjonslaget og datalaget, og følger rollen til `src/services/` i repository-planen [cite:1].
-
-### `src/pages/nbis-dashboard.js`
-
-`nbis-dashboard.js` fungerer som sidefilen som henter data fra `api.js` og renderer prisdata og hendelser inn i DOM-en [cite:1]. Dette passer med planen din der `pages/` brukes til sidespesifikk frontendlogikk [cite:1].
-
-### `assets/style.css`
-
-`style.css` inneholder global styling og hører naturlig hjemme i `assets/`, siden denne mappen er ment for statiske ressurser som bilder, fonter og stilfiler [cite:1]. Dette holder presentasjon adskilt fra både HTML og JavaScript [cite:1].
+1. [public/index.html](../public/index.html) er inngangssiden.
+2. [public/config.js](../public/config.js) inneholder API_BASE for miljo.
+3. [src/services/api.js](../src/services/api.js) kapsler API-kall.
+4. [src/pages/nbis-dashboard.js](../src/pages/nbis-dashboard.js) parser CSV og renderer tabell + events.
+5. [assets/style.css](../assets/style.css) inneholder styling.
 
 ## Dataflyt
 
-Løsningen kan forstås som en enkel kjede i fire steg [cite:4]:
+1. Nettleser laster [public/index.html](../public/index.html).
+2. Siden leser API_BASE fra [public/config.js](../public/config.js).
+3. Frontend henter /health, /api/nbis og /api/events via [src/services/api.js](../src/services/api.js).
+4. Backend svarer med helse, CSV-priser og eventliste.
+5. Dashboard renderer kort, pristabell og eventkort.
 
-1. Nettleseren laster `public/index.html` [cite:1]
-2. `nbis-dashboard.js` kaller funksjoner i `src/services/api.js` [cite:1]
-3. `api.js` henter data fra FastAPI-endepunktene `/api/nbis` og `/api/events` [cite:4]
-4. FastAPI-routene bruker service- og data-laget til å returnere data til frontend-en [cite:4]
+## GitHub Pages-flyt
 
-Denne separasjonen gjør løsningen lettere å forstå, fordi hvert lag har ett tydelig ansvar: backend leverer data, frontend henter data, og UI-laget viser dataene [cite:1][cite:4].
+1. [scripts/build-pages.ps1](../scripts/build-pages.ps1) bygger dist/ ved aa kopiere public, src og assets.
+2. [deploy-pages.yml](../.github/workflows/deploy-pages.yml) kjorer build ved push til main.
+3. Artifact fra dist/ lastes opp og deployes til GitHub Pages.
 
-## Hvorfor denne løsningen er pedagogisk god
+## Kommandoer
 
-Oppsettet er lite nok til å være oversiktlig, men stort nok til å lære grunnleggende arkitektur i et webprosjekt [cite:1][cite:4]. Det viser konkret forskjellen mellom `routes`, `services`, `data`, `pages` og `assets`, uten at prosjektet blir unødvendig komplisert [cite:1][cite:4].
-
-Det er også en naturlig vei videre herfra: pris-CSV kan parses til objekter, vises i tabell eller graf, og event-data kan kobles mot datoer i prisserien i frontend-en [cite:4]. Fordi backend allerede er delt opp etter ansvar, blir slike utvidelser enklere å implementere og vedlikeholde [cite:4].
+Alle konkrete installasjons- og konfigurasjonskommandoer er samlet i [docs/installasjon-og-konfigurasjon.md](./installasjon-og-konfigurasjon.md).

@@ -3,27 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NBIS Dashboard</title>
-  <link rel="stylesheet" href="../assets/style.css" />
+  <title>Nebius Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
-  <main class="container">
-    <header class="hero">
-      <h1>NBIS Dashboard</h1>
-      <p>Price history and company events from your FastAPI backend.</p>
-    </header>
-
-    <section class="panel">
-      <h2>Price history</h2>
-      <pre id="price-output">Loading price data...</pre>
+  <main class="page-shell">
+    <section class="hero panel">
+      <div>
+        <p class="eyebrow">Market Monitor</p>
+        <h1>Nebius Tracker</h1>
+        <p class="hero-copy">
+          A focused NBIS dashboard with recent price history, quick market stats and curated company events.
+        </p>
+      </div>
+      <dl class="hero-meta">
+        <div>
+          <dt>API base</dt>
+          <dd id="api-base-output">Loading...</dd>
+        </div>
+        <div>
+          <dt>Backend status</dt>
+          <dd id="backend-status">Checking...</dd>
+        </div>
+      </dl>
     </section>
 
-    <section class="panel">
-      <h2>Company events</h2>
-      <div id="events-output">Loading events...</div>
+    <section class="summary-grid">
+      <article class="stat-card panel">
+        <p>Last close</p>
+        <strong id="last-close">--</strong>
+      </article>
+      <article class="stat-card panel">
+        <p>52-week high</p>
+        <strong id="high-price">--</strong>
+      </article>
+      <article class="stat-card panel">
+        <p>52-week low</p>
+        <strong id="low-price">--</strong>
+      </article>
+      <article class="stat-card panel">
+        <p>Tracked sessions</p>
+        <strong id="session-count">--</strong>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Prices</p>
+            <h2>Recent NBIS sessions</h2>
+          </div>
+          <p class="muted">Daily prices from the backend Stooq proxy.</p>
+        </div>
+        <div id="price-table-output" class="table-shell">
+          <p class="status-message">Loading price data...</p>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Events</p>
+            <h2>Company timeline</h2>
+          </div>
+          <p class="muted">Milestones that can affect sentiment and volatility.</p>
+        </div>
+        <div id="events-output" class="events-list">
+          <p class="status-message">Loading events...</p>
+        </div>
+      </article>
     </section>
   </main>
 
-  <script type="module" src="../src/pages/nbis-dashboard.js"></script>
+  <script src="./config.js"></script>
+  <script type="module" src="./src/pages/nbis-dashboard.js"></script>
 </body>
 </html>
