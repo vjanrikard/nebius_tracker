@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv \"nebius_tracker/nebius_tracker\" \"nebius_tracker_tmp\")",
+      "Bash(rmdir \"nebius_tracker\")",
+      "Bash(mv \"nebius_tracker_tmp\" \"nebius_tracker\")",
+      "Bash(powershell -Command ' *)",
+      "Bash(powershell -Command 'Remove-Item '\\\\''c:/GitHub/vjanrikard/Common/backend'\\\\'' -Recurse -Force; Write-Host '\\\\''OK: Common/backend fjernet'\\\\'' *)",
+      "Bash(gh auth *)"
+    ]
+  }
+}

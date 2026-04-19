@@ -158,8 +158,11 @@ async function loadEvents() {
   }
 }
 
+const PRICE_REFRESH_MS = 5 * 60 * 1000;
+
 async function init() {
   await Promise.all([loadBackendStatus(), loadPrices(), loadEvents()]);
 }
 
 init();
+setInterval(() => Promise.all([loadBackendStatus(), loadPrices()]), PRICE_REFRESH_MS);
