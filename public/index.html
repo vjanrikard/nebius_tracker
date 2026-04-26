@@ -20,7 +20,7 @@
         <div class="term-dot dot-y"></div>
         <div class="term-dot dot-g"></div>
       </div>
-      <div class="term-title"><span>NBIS_TRACKER</span> v1.0 — NEBIUS GROUP · NASDAQ<span class="cursor"></span></div>
+      <div class="term-title"><span>NBIS_TRACKER</span> v2.0 — NEBIUS GROUP · NASDAQ<span class="cursor"></span></div>
       <div class="term-time" id="clock"></div>
     </div>
 
@@ -43,8 +43,12 @@
         <strong id="low-price">—</strong>
       </div>
       <div class="status-chip">
-        <span>Tracked Sessions</span>
+        <span>Sessions</span>
         <strong id="session-count">—</strong>
+      </div>
+      <div class="status-chip">
+        <span>Avg Volume</span>
+        <strong id="avg-volume">—</strong>
       </div>
       <div class="status-chip">
         <span>Backend</span>
@@ -53,19 +57,74 @@
     </div>
 
     <div class="content">
-      <div class="grid-2">
+      <div class="grid-3">
+
+        <!-- ROW 1 -->
         <div class="chart-wrap">
-          <div class="section-head">RECENT NBIS SESSIONS — DAILY OHLC</div>
+          <div class="section-head">RECENT SESSIONS — DAILY OHLC</div>
           <div id="price-table-output">
             <div class="loading">Loading price data<span class="blink">_</span></div>
           </div>
         </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">DAILY % CHANGE</div>
+          <div id="pct-change-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">VOLUME PROFILE</div>
+          <div id="volume-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <!-- ROW 2 -->
         <div class="chart-wrap">
           <div class="section-head">COMPANY TIMELINE — KEY EVENTS</div>
           <div id="events-output">
             <div class="loading">Loading events<span class="blink">_</span></div>
           </div>
         </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">PRICE STATISTICS</div>
+          <div id="price-stats-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">MOMENTUM TRACKER</div>
+          <div id="momentum-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <!-- ROW 3 -->
+        <div class="chart-wrap">
+          <div class="section-head">DAILY RANGE — HIGH/LOW SPREAD</div>
+          <div id="range-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">OPEN vs CLOSE — SESSION RESULT</div>
+          <div id="oc-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">SYSTEM STATUS</div>
+          <div id="system-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
       </div>
     </div>
 
