@@ -55,7 +55,7 @@ html, body {
 /* TERMINAL SHELL */
 #terminal {
   width: 100%;
-  background: linear-gradient(180deg, rgba(12,35,48,.96), rgba(5,16,23,.99));
+  background: linear-gradient(180deg, rgba(12,35,48,.55), rgba(5,16,23,.65));
   border: 1px solid var(--line);
   border-radius: 6px;
   overflow: hidden;
@@ -224,7 +224,7 @@ html, body {
 .events-list { display: flex; flex-direction: column; gap: 10px; }
 
 .event-card {
-  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  background: transparent;
   border: 1px solid var(--line);
   border-left: 3px solid var(--cool);
   padding: 12px 14px;
