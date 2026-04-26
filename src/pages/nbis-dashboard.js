@@ -3,12 +3,15 @@ import { fetchEvents, fetchHealth, fetchNbisPrices, getApiBase } from "../servic
 const elements = {
   apiBase: document.getElementById("api-base-output"),
   backendStatus: document.getElementById("backend-status"),
+  headerDataStatus: document.getElementById("header-data-status"),
+  dataStatus: document.getElementById("data-status"),
   lastClose: document.getElementById("last-close"),
   highPrice: document.getElementById("high-price"),
   lowPrice: document.getElementById("low-price"),
   sessionCount: document.getElementById("session-count"),
   priceTableOutput: document.getElementById("price-table-output"),
   eventsOutput: document.getElementById("events-output"),
+  lastRefresh: document.getElementById("last-refresh"),
 };
 
 function formatCurrency(value) {
@@ -103,7 +106,7 @@ function renderEvents(events) {
     return;
   }
 
-  const html = events
+  const cards = events
     .map(
       (event) => `
         <article class="event-card">
@@ -119,17 +122,30 @@ function renderEvents(events) {
     )
     .join("");
 
-  elements.eventsOutput.innerHTML = html;
+  elements.eventsOutput.innerHTML = `<div class="events-list">${cards}</div>`;
+}
+
+function setDataStatus(html) {
+  if (elements.headerDataStatus) elements.headerDataStatus.innerHTML = html;
+  if (elements.dataStatus) elements.dataStatus.innerHTML = html;
 }
 
 async function loadBackendStatus() {
   elements.apiBase.textContent = getApiBase();
+  setDataStatus('<span style="color:var(--t-amber)">● connecting...</span>');
 
   try {
     const result = await fetchHealth();
-    elements.backendStatus.textContent = result.status === "ok" ? "Online" : "Unavailable";
+    const online = result.status === "ok";
+    const statusHtml = online
+      ? '<span style="color:var(--t-green)">● online</span>'
+      : '<span style="color:var(--t-red)">● unavailable</span>';
+    elements.backendStatus.innerHTML = statusHtml;
+    setDataStatus(statusHtml);
   } catch (error) {
-    elements.backendStatus.textContent = `Offline (${error.message})`;
+    const offlineHtml = `<span style="color:var(--t-red)">● offline</span>`;
+    elements.backendStatus.innerHTML = offlineHtml;
+    setDataStatus(offlineHtml);
   }
 }
 
@@ -158,11 +174,31 @@ async function loadEvents() {
   }
 }
 
+function startClock() {
+  const el = document.getElementById("clock");
+  if (!el) return;
+  const tick = () => {
+    el.textContent = new Date().toUTCString().replace("GMT", "UTC");
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+
 const PRICE_REFRESH_MS = 5 * 60 * 1000;
 
 async function init() {
+  startClock();
   await Promise.all([loadBackendStatus(), loadPrices(), loadEvents()]);
+
+  if (elements.lastRefresh) {
+    elements.lastRefresh.textContent = `updated ${new Date().toLocaleTimeString("nb-NO")}`;
+  }
 }
 
 init();
-setInterval(() => Promise.all([loadBackendStatus(), loadPrices()]), PRICE_REFRESH_MS);
+setInterval(async () => {
+  await Promise.all([loadBackendStatus(), loadPrices()]);
+  if (elements.lastRefresh) {
+    elements.lastRefresh.textContent = `updated ${new Date().toLocaleTimeString("nb-NO")}`;
+  }
+}, PRICE_REFRESH_MS);
