@@ -140,7 +140,7 @@ html, body {
   min-width: 110px;
 }
 .status-chip span { color: var(--muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
-.status-chip strong { color: var(--text); font-size: 16px; letter-spacing: -.02em; font-weight: 500; }
+.status-chip strong { color: var(--ok); font-size: 16px; letter-spacing: -.02em; font-weight: 500; }
 
 /* CONTENT */
 .content { padding: 20px; min-height: 400px; background: transparent; }
@@ -161,7 +161,7 @@ html, body {
 /* SECTION HEAD */
 .section-head {
   font-size: 10px;
-  color: var(--hot);
+  color: var(--warn);
   letter-spacing: .18em;
   text-transform: uppercase;
   margin-bottom: 16px;
@@ -171,11 +171,11 @@ html, body {
   align-items: center;
   gap: 8px;
 }
-.section-head::before { content: '//'; color: var(--hot); font-weight: 600; opacity: .6; }
+.section-head::before { content: '//'; color: var(--warn); font-weight: 600; opacity: .6; }
 
 /* CHART WRAP */
 .chart-wrap {
-  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  background: var(--bg);
   border: 1px solid var(--line);
   padding: 16px;
   animation: fadeIn 420ms ease-out;
@@ -211,7 +211,7 @@ html, body {
 .price-table td {
   padding: 7px 10px;
   border-bottom: 1px solid var(--line);
-  color: var(--text);
+  color: var(--hot);
   font-family: inherit;
 }
 .price-table tr:last-child td { border-bottom: none; }
