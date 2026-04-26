@@ -1,5 +1,87 @@
 # Endringslogg
 
+## 2026-04-26 — Style refresh: UI matched mot fed_macro_terminal
+
+### Motivasjon
+
+Nebius Tracker hadde et eldre visuelt uttrykk (JetBrains Mono, mørk navy/sort). Målet var å bringe den i linje med [fed_macro_terminal](https://vjanrikard.github.io/fed_macro_terminal/) — samme fargepalett, fonter og designspråk for konsistent look på tvers av dashboards.
+
+### Endrede filer
+
+| Fil | Endring |
+| --- | --- |
+| `assets/style.css` | Komplett redesign — ny palett, fonter, animasjoner og grid-overlay |
+| `public/index.html` | La til `.bg-grid`-div og Google Fonts preconnect for IBM Plex Mono + Space Grotesk |
+
+### Visuelle endringer
+
+| Element | Før | Etter |
+| --- | --- | --- |
+| Font | JetBrains Mono | IBM Plex Mono + Space Grotesk (headings) |
+| Bakgrunn | Flat `#0a0e13` + scanlines | Radialt gradient (`#06131a`) + CSS grid-overlay |
+| Primær aksent | `#4db8ff` (blå) | `#67d6ff` (cool teal-blå) |
+| Grønn | `#00d46a` | `#70e28f` |
+| Rød/hot | `#ff4a4a` | `#ff7a59` |
+| Gul/warn | `#f5a623` | `#ffd166` |
+| Border | `#1e2a35` | `#245268` (teal-blå) |
+| Terminal shell | Ingen blur | `backdrop-filter: blur(4px)` + gradient |
+| Animasjoner | Ingen | `rise` (shell ved innlasting), `fadeIn` (kort/events) |
+| Event-cards | Avrundede hjørner | Rette hjørner, `border-left: 3px solid var(--cool)` |
+| Tags | Avrundede badges | Rette kanter med `border: 1px solid currentColor` |
+
+### Effekt
+
+- Visuelt konsistent med fed_macro_terminal på tvers av begge dashboards.
+- Mer dybde og bevegelse gjennom animasjoner og gradient-bakgrunn.
+- Ingen funksjonelle endringer — kun styling.
+
+---
+
+## 2026-04-20 — Konsolidering: siste samsvar og feilsokingsforbedringer
+
+### Endringer i frontend-repo (nebius_tracker)
+
+| Fil | Endring |
+| --------------------------- | ------------------------------------------------------------------ |
+| `docs/README_generated.md`  | Oppdatert til frontend-only repo + ekstern Render-backend |
+| `docs/startup-prosedyre.md` | Oppdatert workflow og hurtigkommandoer for ekstern backend         |
+| `src/services/api.js`       | Bedre fallback API-base og viser backend `detail`-melding ved feil |
+
+### Endringer i backend-repo (Common)
+
+| Fil 			| Endring                                                              |
+| --- ------------------| -------------------------------------------------------------------- |
+| `backend/main.py` 	| La til GET/HEAD for `/` for aa unngaa 404-stoy i health/probe-logger |
+
+### Effekt (konsolidering)
+
+- Dokumentasjon og faktisk drift er mer konsistent.
+- Frontend viser mer nyttige feilmeldinger naer backend returnerer 4xx/5xx.
+- Render-prober mot `/` gir ikke lenger 404.
+
+---
+
+## 2026-04-20 — Dokumentasjon oppdatert til faktisk drift
+
+### Problem (dokumentasjon)
+
+Dokumentasjonen beskrev backend-filer som om de la i dette repoet, selv om denne repoen i praksis kun inneholder frontend og bruker ekstern backend pa Render.
+
+### Endringer (dokumentasjon)
+
+| Fil | Endring |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `docs/nbis_losningsoppsett.md`          | Fjernet lokal backend-struktur og oppdatert arkitekturtekst til ekstern Render-backend               |
+| `docs/installasjon-og-konfigurasjon.md` | Fjernet lokal backend-start (uvicorn) og la til verifisering/feilsoking mot ekstern backend          |
+| `README.md`                             | Presisert at backend er ekstern FastAPI-tjeneste pa Render                                           |
+
+### Effekt (dokumentasjon)
+
+- Dokumentasjonen samsvarer med faktisk repo-innhold.
+- Driftssituasjonen "health ok, /api/nbis 502" har en tydelig feilsokingssti.
+
+---
+
 ## 2026-04-19 — Fiks: webside oppdaterer seg ikke
 
 ### Problem
@@ -10,12 +92,12 @@ Stooq-proxyen manglet også validering av svaret — hvis Stooq returnerte en HT
 
 ### Årsaker
 
-| Årsak | Fil |
-|---|---|
-| `fetch()` brukte standard nettleserbuffer — cachede GET-svar | `src/services/api.js` |
-| Ingen `setInterval` — data ble aldri oppdatert automatisk | `src/pages/nbis-dashboard.js` |
-| Backend satte ingen `Cache-Control`-header | `backend/routes/nbis.py` |
-| Ingen validering av at Stooq-svaret er CSV | `backend/routes/nbis.py` |
+| Årsak                                                        | Fil                           |
+| ------------------------------------------------------------ | ----------------------------- |
+| `fetch()` brukte standard nettleserbuffer — cachede GET-svar | `src/services/api.js`         |
+| Ingen `setInterval` — data ble aldri oppdatert automatisk    | `src/pages/nbis-dashboard.js` |
+| Backend satte ingen `Cache-Control`-header                   | `backend/routes/nbis.py`      |
+| Ingen validering av at Stooq-svaret er                       | `backend/routes/nbis.py       |
 
 ### Endringer
 
@@ -79,11 +161,11 @@ Repositoriet lå med dobbel nesting (`Finance/Nebius/nebius_tracker/nebius_track
 
 ### Utførte flytt
 
-| Handling | Fra | Til / Resultat |
-| --- | --- | --- |
-| Fiks dobbel nesting | `Finance/Nebius/nebius_tracker/nebius_tracker/` | Innhold flyttet opp til `Finance/Nebius/nebius_tracker/` |
-| Fjernet stale duplikat | `Common/backend/` | Slettet — eldre kopi av nebius_tracker-backend (manglet fixes fra 2026-04-19) |
-| Fjernet feilplassert venv | `Common/.venv/` | Slettet — prosjektspesifikt Python-miljø, ikke en felles ressurs |
+| Handling                  | Fra                                             | Til / Resultat                                                                |
+| --------------------- --- | --- |
+| Fiks dobbel nesting       | `Finance/Nebius/nebius_tracker/nebius_tracker/` | Innhold flyttet opp til `Finance/Nebius/nebius_tracker/`                      |
+| Fjernet stale duplikat    | `Common/backend/`                               | Slettet — eldre kopi av nebius_tracker-backend (manglet fixes fra 2026-04-19) |
+| Fjernet feilplassert venv | `Common/.venv/`                                 | Slettet — prosjektspesifikt Python-miljø, ikke en felles ressurs              |
 
 ### Gjenstående
 
@@ -99,17 +181,17 @@ GitHub Pages serverer kun statiske filer. `config.js` pekte til `http://127.0.0.
 
 ### Nye filer
 
-| Fil | Formål |
-| --- | --- |
-| `render.yaml` | Render Infrastructure as Code — definerer service, runtime, startkommando og CORS-env |
-| `.python-version` | Forteller Render å bruke Python 3.12.0 |
+| Fil               | Formål                                                                                |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| `render.yaml`     | Render Infrastructure as Code — definerer service, runtime, startkommando og CORS-env |
+| `.python-version` | Forteller Render å bruke Python 3.12.0                                                |
 
 ### Endrede filer
 
 | Fil | Endring |
 | --- | --- |
 | `public/config.js` | `API_BASE` endret fra `http://127.0.0.1:8000` til `https://nebius-tracker-api.onrender.com` |
-| `config.js` (rot) | Samme endring — holdes i sync med `public/config.js` |
+| `config.js` (rot)  | Samme endring — holdes i sync med `public/config.js`                                        |
 
 ### Render-konfigurasjon
 
