@@ -1,26 +1,31 @@
 import { fetchEvents, fetchHealth, fetchNbisPrices, getApiBase } from "../services/api.js";
 
+const el = (id) => document.getElementById(id);
+
 const elements = {
-  apiBase:          document.getElementById("api-base-output"),
-  backendStatus:    document.getElementById("backend-status"),
-  headerDataStatus: document.getElementById("header-data-status"),
-  dataStatus:       document.getElementById("data-status"),
-  lastClose:        document.getElementById("last-close"),
-  highPrice:        document.getElementById("high-price"),
-  lowPrice:         document.getElementById("low-price"),
-  sessionCount:     document.getElementById("session-count"),
-  avgVolume:        document.getElementById("avg-volume"),
-  priceTableOutput: document.getElementById("price-table-output"),
-  pctChangeOutput:  document.getElementById("pct-change-output"),
-  volumeOutput:     document.getElementById("volume-output"),
-  eventsOutput:     document.getElementById("events-output"),
-  priceStatsOutput: document.getElementById("price-stats-output"),
-  momentumOutput:   document.getElementById("momentum-output"),
-  rangeOutput:      document.getElementById("range-output"),
-  ocOutput:         document.getElementById("oc-output"),
-  systemOutput:     document.getElementById("system-output"),
-  lastRefresh:      document.getElementById("last-refresh"),
+  apiBase:          el("api-base-output"),
+  backendStatus:    el("backend-status"),
+  headerDataStatus: el("header-data-status"),
+  dataStatus:       el("data-status"),
+  lastClose:        el("last-close"),
+  highPrice:        el("high-price"),
+  lowPrice:         el("low-price"),
+  sessionCount:     el("session-count"),
+  avgVolume:        el("avg-volume"),
+  priceTableOutput: el("price-table-output"),
+  pctChangeOutput:  el("pct-change-output"),
+  volumeOutput:     el("volume-output"),
+  eventsOutput:     el("events-output"),
+  priceStatsOutput: el("price-stats-output"),
+  momentumOutput:   el("momentum-output"),
+  rangeOutput:      el("range-output"),
+  ocOutput:         el("oc-output"),
+  systemOutput:     el("system-output"),
+  lastRefresh:      el("last-refresh"),
 };
+
+const set = (elem, html) => { if (elem) elem.innerHTML = html; };
+const setText = (elem, txt) => { if (elem) elem.textContent = txt; };
 
 const usd = (v) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
 const vol = (v) => v >= 1_000_000 ? `${(v / 1_000_000).toFixed(2)}M` : v >= 1_000 ? `${(v / 1_000).toFixed(0)}K` : String(v);
@@ -40,39 +45,36 @@ function parseCsv(csvText) {
 }
 
 function setDataStatus(html) {
-  if (elements.headerDataStatus) elements.headerDataStatus.innerHTML = html;
-  if (elements.dataStatus) elements.dataStatus.innerHTML = html;
+  set(elements.headerDataStatus, html);
+  set(elements.dataStatus, html);
 }
 
-// ── KPI CHIPS ────────────────────────────────────────────────────────────────
+// ── KPI CHIPS ─────────────────────────────────────────────────────────────────
 function renderChips(prices) {
   const latest = prices[prices.length - 1];
-  const highs   = prices.map((e) => e.high);
-  const lows    = prices.map((e) => e.low);
-  const avgVol  = prices.reduce((s, e) => s + e.volume, 0) / prices.length;
-
-  elements.lastClose.textContent    = usd(latest.close);
-  elements.highPrice.textContent    = usd(Math.max(...highs));
-  elements.lowPrice.textContent     = usd(Math.min(...lows));
-  elements.sessionCount.textContent = String(prices.length);
-  if (elements.avgVolume) elements.avgVolume.textContent = vol(avgVol);
+  const avgVol = prices.reduce((s, e) => s + e.volume, 0) / prices.length;
+  setText(elements.lastClose, usd(latest.close));
+  setText(elements.highPrice, usd(Math.max(...prices.map((e) => e.high))));
+  setText(elements.lowPrice,  usd(Math.min(...prices.map((e) => e.low))));
+  setText(elements.sessionCount, String(prices.length));
+  setText(elements.avgVolume, vol(avgVol));
 }
 
-// ── PANEL 1: OHLC TABLE ───────────────────────────────────────────────────
+// ── PANEL 1: OHLC TABLE ───────────────────────────────────────────────────────
 function renderPriceTable(prices) {
   const rows = prices.slice(-10).reverse().map((e) => {
     const move = e.close - e.open;
     const cls  = move >= 0 ? "value-up" : "value-down";
     return `<tr><td>${e.date}</td><td>${usd(e.open)}</td><td>${usd(e.close)}</td><td>${usd(e.high)}</td><td>${usd(e.low)}</td><td class="${cls}">${signed(move)}</td></tr>`;
   }).join("");
-  elements.priceTableOutput.innerHTML = `
+  set(elements.priceTableOutput, `
     <table class="price-table">
       <thead><tr><th>Date</th><th>Open</th><th>Close</th><th>High</th><th>Low</th><th>Move</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── PANEL 2: DAILY % CHANGE ───────────────────────────────────────────────
+// ── PANEL 2: DAILY % CHANGE ───────────────────────────────────────────────────
 function renderPctChange(prices) {
   const rows = prices.slice(-10).reverse().map((e) => {
     const change = ((e.close - e.open) / e.open) * 100;
@@ -80,46 +82,41 @@ function renderPctChange(prices) {
     const bar    = "█".repeat(Math.min(Math.round(Math.abs(change) * 2), 12));
     return `<tr><td>${e.date}</td><td class="${cls}">${pct(change)}</td><td class="${cls}" style="letter-spacing:-.05em;font-size:10px">${bar}</td></tr>`;
   }).join("");
-  elements.pctChangeOutput.innerHTML = `
+  set(elements.pctChangeOutput, `
     <table class="price-table">
       <thead><tr><th>Date</th><th>Change</th><th>Bar</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── PANEL 3: VOLUME PROFILE ───────────────────────────────────────────────
+// ── PANEL 3: VOLUME PROFILE ───────────────────────────────────────────────────
 function renderVolume(prices) {
-  const recent   = prices.slice(-10).reverse();
-  const maxVol   = Math.max(...recent.map((e) => e.volume));
+  const recent = prices.slice(-10).reverse();
+  const maxVol = Math.max(...recent.map((e) => e.volume));
   const rows = recent.map((e) => {
-    const barLen = Math.round((e.volume / maxVol) * 12);
-    const bar    = "█".repeat(barLen);
-    const move   = e.close - e.open;
-    const cls    = move >= 0 ? "value-up" : "value-down";
+    const bar = "█".repeat(Math.round((e.volume / maxVol) * 12));
+    const cls = e.close >= e.open ? "value-up" : "value-down";
     return `<tr><td>${e.date}</td><td>${vol(e.volume)}</td><td class="${cls}" style="letter-spacing:-.05em;font-size:10px">${bar}</td></tr>`;
   }).join("");
-  elements.volumeOutput.innerHTML = `
+  set(elements.volumeOutput, `
     <table class="price-table">
       <thead><tr><th>Date</th><th>Volume</th><th>Rel.</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── PANEL 5: PRICE STATISTICS ─────────────────────────────────────────────
+// ── PANEL 5: PRICE STATISTICS ─────────────────────────────────────────────────
 function renderPriceStats(prices) {
-  const closes  = prices.map((e) => e.close).sort((a, b) => a - b);
-  const median  = closes[Math.floor(closes.length / 2)];
-  const avg     = closes.reduce((s, v) => s + v, 0) / closes.length;
-  const latest  = prices[prices.length - 1].close;
-  const w52h    = Math.max(...prices.map((e) => e.high));
-  const w52l    = Math.min(...prices.map((e) => e.low));
-  const fromH   = ((latest - w52h) / w52h) * 100;
-  const fromL   = ((latest - w52l) / w52l) * 100;
-  const range   = w52h - w52l;
-  const pos     = Math.round(((latest - w52l) / range) * 20);
-  const gauge   = "─".repeat(pos) + "●" + "─".repeat(20 - pos);
-
-  elements.priceStatsOutput.innerHTML = `
+  const closes = prices.map((e) => e.close).sort((a, b) => a - b);
+  const median = closes[Math.floor(closes.length / 2)];
+  const avg    = closes.reduce((s, v) => s + v, 0) / closes.length;
+  const latest = prices[prices.length - 1].close;
+  const w52h   = Math.max(...prices.map((e) => e.high));
+  const w52l   = Math.min(...prices.map((e) => e.low));
+  const range  = w52h - w52l;
+  const pos    = Math.round(((latest - w52l) / range) * 20);
+  const gauge  = "─".repeat(pos) + "●" + "─".repeat(20 - pos);
+  set(elements.priceStatsOutput, `
     <table class="price-table">
       <tbody>
         <tr><td>Last Close</td><td class="value-up">${usd(latest)}</td></tr>
@@ -127,148 +124,133 @@ function renderPriceStats(prices) {
         <tr><td>Median Close</td><td>${usd(median)}</td></tr>
         <tr><td>52W High</td><td>${usd(w52h)}</td></tr>
         <tr><td>52W Low</td><td>${usd(w52l)}</td></tr>
-        <tr><td>From 52W High</td><td class="value-down">${pct(fromH)}</td></tr>
-        <tr><td>From 52W Low</td><td class="value-up">${pct(fromL)}</td></tr>
+        <tr><td>From 52W High</td><td class="value-down">${pct(((latest - w52h) / w52h) * 100)}</td></tr>
+        <tr><td>From 52W Low</td><td class="value-up">${pct(((latest - w52l) / w52l) * 100)}</td></tr>
       </tbody>
     </table>
     <div style="margin-top:12px;font-size:9px;color:var(--muted);letter-spacing:.04em">52W RANGE POSITION</div>
-    <div style="margin-top:6px;font-size:10px;color:var(--cool);letter-spacing:-.02em;font-family:inherit">${gauge}</div>`;
+    <div style="margin-top:6px;font-size:10px;color:var(--cool);letter-spacing:-.02em;font-family:inherit">${gauge}</div>`);
 }
 
-// ── PANEL 6: MOMENTUM ─────────────────────────────────────────────────────
+// ── PANEL 6: MOMENTUM ─────────────────────────────────────────────────────────
 function renderMomentum(prices) {
   const recent = prices.slice(-20).reverse();
-  let streak = 0;
-  const dir = recent[0].close >= recent[0].open ? "up" : "down";
+  const dir    = recent[0].close >= recent[0].open ? "up" : "down";
+  let streak   = 0;
   for (const e of recent) {
-    const d = e.close >= e.open ? "up" : "down";
-    if (d === dir) streak++; else break;
+    if ((e.close >= e.open ? "up" : "down") === dir) streak++; else break;
   }
   const moves   = prices.slice(-20).map((e) => ((e.close - e.open) / e.open) * 100);
   const avgMove = moves.reduce((s, v) => s + v, 0) / moves.length;
   const upDays  = prices.slice(-20).filter((e) => e.close >= e.open).length;
-  const downDays = 20 - upDays;
   const winRate = (upDays / 20) * 100;
-  const streakCls = dir === "up" ? "value-up" : "value-down";
-  const streakLabel = dir === "up" ? "▲ UP" : "▼ DOWN";
-
-  elements.momentumOutput.innerHTML = `
+  const cls     = dir === "up" ? "value-up" : "value-down";
+  set(elements.momentumOutput, `
     <table class="price-table">
       <tbody>
-        <tr><td>Current Streak</td><td class="${streakCls}">${streak} days ${streakLabel}</td></tr>
+        <tr><td>Current Streak</td><td class="${cls}">${streak}d ${dir === "up" ? "▲ UP" : "▼ DOWN"}</td></tr>
         <tr><td>Avg Daily Move</td><td class="${avgMove >= 0 ? "value-up" : "value-down"}">${pct(avgMove)}</td></tr>
         <tr><td>Up Days (20d)</td><td class="value-up">${upDays} sessions</td></tr>
-        <tr><td>Down Days (20d)</td><td class="value-down">${downDays} sessions</td></tr>
+        <tr><td>Down Days (20d)</td><td class="value-down">${20 - upDays} sessions</td></tr>
         <tr><td>Win Rate (20d)</td><td class="${winRate >= 50 ? "value-up" : "value-down"}">${winRate.toFixed(1)}%</td></tr>
       </tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── PANEL 7: DAILY RANGE ──────────────────────────────────────────────────
+// ── PANEL 7: DAILY RANGE ──────────────────────────────────────────────────────
 function renderRange(prices) {
   const rows = prices.slice(-10).reverse().map((e) => {
     const spread = e.high - e.low;
-    const spreadPct = (spread / e.low) * 100;
-    return `<tr><td>${e.date}</td><td>${usd(spread)}</td><td>${pct(spreadPct)}</td></tr>`;
+    return `<tr><td>${e.date}</td><td>${usd(spread)}</td><td>${pct((spread / e.low) * 100)}</td></tr>`;
   }).join("");
-  elements.rangeOutput.innerHTML = `
+  set(elements.rangeOutput, `
     <table class="price-table">
       <thead><tr><th>Date</th><th>H-L Spread</th><th>Range %</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── PANEL 8: OPEN vs CLOSE ────────────────────────────────────────────────
+// ── PANEL 8: OPEN vs CLOSE ────────────────────────────────────────────────────
 function renderOC(prices) {
   const rows = prices.slice(-10).reverse().map((e) => {
     const move = e.close - e.open;
     const cls  = move >= 0 ? "value-up" : "value-down";
-    const result = move >= 0 ? "▲ BULL" : "▼ BEAR";
-    return `<tr><td>${e.date}</td><td>${usd(e.open)}</td><td>${usd(e.close)}</td><td class="${cls}">${result}</td></tr>`;
+    return `<tr><td>${e.date}</td><td>${usd(e.open)}</td><td>${usd(e.close)}</td><td class="${cls}">${move >= 0 ? "▲ BULL" : "▼ BEAR"}</td></tr>`;
   }).join("");
-  elements.ocOutput.innerHTML = `
+  set(elements.ocOutput, `
     <table class="price-table">
       <thead><tr><th>Date</th><th>Open</th><th>Close</th><th>Result</th></tr></thead>
       <tbody>${rows}</tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── PANEL 9: SYSTEM STATUS ────────────────────────────────────────────────
+// ── PANEL 9: SYSTEM STATUS ────────────────────────────────────────────────────
 function renderSystem(backendOk, prices) {
-  const now      = new Date();
-  const latest   = prices[prices.length - 1];
-  const sessions = prices.length;
+  const latest    = prices[prices.length - 1];
   const statusCls = backendOk ? "value-up" : "value-down";
-  const statusTxt = backendOk ? "● ONLINE" : "● OFFLINE";
-
-  elements.systemOutput.innerHTML = `
+  set(elements.systemOutput, `
     <table class="price-table">
       <tbody>
-        <tr><td>Backend</td><td class="${statusCls}">${statusTxt}</td></tr>
+        <tr><td>Backend</td><td class="${statusCls}">${backendOk ? "● ONLINE" : "● OFFLINE"}</td></tr>
         <tr><td>API Base</td><td style="color:var(--cool);font-size:10px">${getApiBase()}</td></tr>
         <tr><td>Data Source</td><td>Stooq proxy</td></tr>
         <tr><td>Refresh Rate</td><td>5 min</td></tr>
-        <tr><td>Sessions Loaded</td><td>${sessions}</td></tr>
+        <tr><td>Sessions Loaded</td><td>${prices.length}</td></tr>
         <tr><td>Latest Date</td><td>${latest.date}</td></tr>
-        <tr><td>Last Updated</td><td>${now.toLocaleTimeString("nb-NO")}</td></tr>
+        <tr><td>Last Updated</td><td>${new Date().toLocaleTimeString("nb-NO")}</td></tr>
         <tr><td>Version</td><td>v2.0</td></tr>
       </tbody>
-    </table>`;
+    </table>`);
 }
 
-// ── BACKEND STATUS ────────────────────────────────────────────────────────
+// ── BACKEND STATUS ────────────────────────────────────────────────────────────
 async function loadBackendStatus() {
-  elements.apiBase.textContent = getApiBase();
+  setText(elements.apiBase, getApiBase());
   setDataStatus('<span style="color:var(--warn)">● connecting...</span>');
   try {
     const result = await fetchHealth();
-    const ok = result.status === "ok";
-    const html = ok
+    const ok     = result.status === "ok";
+    const html   = ok
       ? '<span style="color:var(--ok)">● online</span>'
       : '<span style="color:var(--hot)">● unavailable</span>';
-    elements.backendStatus.innerHTML = html;
+    set(elements.backendStatus, html);
     setDataStatus(html);
     return ok;
   } catch {
     const html = '<span style="color:var(--hot)">● offline</span>';
-    elements.backendStatus.innerHTML = html;
+    set(elements.backendStatus, html);
     setDataStatus(html);
     return false;
   }
 }
 
-// ── EVENTS ────────────────────────────────────────────────────────────────
+// ── EVENTS ────────────────────────────────────────────────────────────────────
 async function loadEvents() {
   try {
-    const data = await fetchEvents();
+    const data   = await fetchEvents();
     const events = data.events ?? [];
     if (!events.length) {
-      elements.eventsOutput.innerHTML = '<p class="status-message">No events found.</p>';
+      set(elements.eventsOutput, '<p class="status-message">No events found.</p>');
       return;
     }
     const cards = events.map((e) => `
       <article class="event-card">
-        <div class="event-top">
-          <span>${e.date}</span>
-          <span class="event-tag">${e.tag}</span>
-        </div>
+        <div class="event-top"><span>${e.date}</span><span class="event-tag">${e.tag}</span></div>
         <h3>${e.title}</h3>
         <p>${e.impact}</p>
         <a href="${e.url}" target="_blank" rel="noopener noreferrer">Read more</a>
       </article>`).join("");
-    elements.eventsOutput.innerHTML = `<div class="events-list">${cards}</div>`;
+    set(elements.eventsOutput, `<div class="events-list">${cards}</div>`);
   } catch (err) {
-    elements.eventsOutput.innerHTML = `<p class="status-message">${err.message}</p>`;
+    set(elements.eventsOutput, `<p class="status-message">${err.message}</p>`);
   }
 }
 
-// ── PRICES (all panels) ───────────────────────────────────────────────────
+// ── ALL PRICE PANELS ──────────────────────────────────────────────────────────
 async function loadPrices(backendOk) {
   try {
-    const csvText = await fetchNbisPrices();
-    const prices  = parseCsv(csvText);
+    const prices = parseCsv(await fetchNbisPrices());
     if (!prices.length) throw new Error("No price rows returned from backend");
-
     renderChips(prices);
     renderPriceTable(prices);
     renderPctChange(prices);
@@ -282,14 +264,14 @@ async function loadPrices(backendOk) {
     const msg = `<p class="status-message">${err.message}</p>`;
     [elements.priceTableOutput, elements.pctChangeOutput, elements.volumeOutput,
      elements.priceStatsOutput, elements.momentumOutput, elements.rangeOutput,
-     elements.ocOutput].forEach((el) => { if (el) el.innerHTML = msg; });
+     elements.ocOutput, elements.systemOutput].forEach((e) => set(e, msg));
   }
 }
 
 function startClock() {
-  const el = document.getElementById("clock");
-  if (!el) return;
-  const tick = () => { el.textContent = new Date().toUTCString().replace("GMT", "UTC"); };
+  const clock = el("clock");
+  if (!clock) return;
+  const tick = () => { clock.textContent = new Date().toUTCString().replace("GMT", "UTC"); };
   tick();
   setInterval(tick, 1000);
 }
@@ -300,12 +282,12 @@ async function init() {
   startClock();
   const backendOk = await loadBackendStatus();
   await Promise.all([loadPrices(backendOk), loadEvents()]);
-  if (elements.lastRefresh) elements.lastRefresh.textContent = `updated ${new Date().toLocaleTimeString("nb-NO")}`;
+  setText(elements.lastRefresh, `updated ${new Date().toLocaleTimeString("nb-NO")}`);
 }
 
 init();
 setInterval(async () => {
   const backendOk = await loadBackendStatus();
   await loadPrices(backendOk);
-  if (elements.lastRefresh) elements.lastRefresh.textContent = `updated ${new Date().toLocaleTimeString("nb-NO")}`;
+  setText(elements.lastRefresh, `updated ${new Date().toLocaleTimeString("nb-NO")}`);
 }, REFRESH_MS);
