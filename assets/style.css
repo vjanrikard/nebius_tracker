@@ -175,7 +175,7 @@ html, body {
 
 /* CHART WRAP */
 .chart-wrap {
-  background: var(--bg);
+  background: transparent;
   border: 1px solid var(--line);
   padding: 16px;
   animation: fadeIn 420ms ease-out;
