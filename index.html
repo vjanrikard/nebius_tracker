@@ -3,83 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nebius Tracker</title>
+  <title>NBIS_TRACKER — Market Terminal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./assets/style.css" />
 </head>
 <body>
-  <main class="page-shell">
-    <section class="hero panel">
-      <div>
-        <p class="eyebrow">Market Monitor</p>
-        <h1>Nebius Tracker</h1>
-        <p class="hero-copy">
-          A focused NBIS dashboard with recent price history, quick market stats and curated company events.
-        </p>
+<div class="bg-grid" aria-hidden="true"></div>
+<div id="app">
+  <div id="terminal">
+
+    <div class="term-header">
+      <div class="term-dots">
+        <div class="term-dot dot-r"></div>
+        <div class="term-dot dot-y"></div>
+        <div class="term-dot dot-g"></div>
       </div>
-      <dl class="hero-meta">
-        <div>
-          <dt>API base</dt>
-          <dd id="api-base-output">Loading...</dd>
-        </div>
-        <div>
-          <dt>Backend status</dt>
-          <dd id="backend-status">Checking...</dd>
-        </div>
-      </dl>
-    </section>
+      <div class="term-title"><span>NBIS_TRACKER</span> v2.0 — NEBIUS GROUP · NASDAQ<span class="cursor"></span></div>
+      <div class="term-time" id="clock"></div>
+    </div>
 
-    <section class="summary-grid">
-      <article class="stat-card panel">
-        <p>Last close</p>
-        <strong id="last-close">--</strong>
-      </article>
-      <article class="stat-card panel">
-        <p>52-week high</p>
-        <strong id="high-price">--</strong>
-      </article>
-      <article class="stat-card panel">
-        <p>52-week low</p>
-        <strong id="low-price">--</strong>
-      </article>
-      <article class="stat-card panel">
-        <p>Tracked sessions</p>
-        <strong id="session-count">--</strong>
-      </article>
-    </section>
+    <div class="header-footer-mirror">
+      <span class="source"><span class="prompt-text">$</span> source: <span id="api-base-output">loading...</span> — Stooq proxy</span>
+      <span id="header-data-status" class="status">● connecting...</span>
+    </div>
 
-    <section class="content-grid">
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Prices</p>
-            <h2>Recent NBIS sessions</h2>
+    <div class="status-bar-top">
+      <div class="status-chip">
+        <span>Last Close</span>
+        <strong id="last-close">—</strong>
+      </div>
+      <div class="status-chip">
+        <span>52W High</span>
+        <strong id="high-price">—</strong>
+      </div>
+      <div class="status-chip">
+        <span>52W Low</span>
+        <strong id="low-price">—</strong>
+      </div>
+      <div class="status-chip">
+        <span>Sessions</span>
+        <strong id="session-count">—</strong>
+      </div>
+      <div class="status-chip">
+        <span>Avg Volume</span>
+        <strong id="avg-volume">—</strong>
+      </div>
+      <div class="status-chip">
+        <span>Backend</span>
+        <strong id="backend-status">● checking...</strong>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="grid-3">
+
+        <!-- ROW 1 -->
+        <div class="chart-wrap">
+          <div class="section-head">RECENT SESSIONS — DAILY OHLC</div>
+          <div id="price-table-output">
+            <div class="loading">Loading price data<span class="blink">_</span></div>
           </div>
-          <p class="muted">Daily prices from the backend Stooq proxy.</p>
         </div>
-        <div id="price-table-output" class="table-shell">
-          <p class="status-message">Loading price data...</p>
-        </div>
-      </article>
 
-      <article class="panel">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Events</p>
-            <h2>Company timeline</h2>
+        <div class="chart-wrap">
+          <div class="section-head">DAILY % CHANGE</div>
+          <div id="pct-change-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
           </div>
-          <p class="muted">Milestones that can affect sentiment and volatility.</p>
         </div>
-        <div id="events-output" class="events-list">
-          <p class="status-message">Loading events...</p>
-        </div>
-      </article>
-    </section>
-  </main>
 
-  <script src="./config.js"></script>
-  <script type="module" src="./src/pages/nbis-dashboard.js"></script>
+        <div class="chart-wrap">
+          <div class="section-head">VOLUME PROFILE</div>
+          <div id="volume-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <!-- ROW 2 -->
+        <div class="chart-wrap">
+          <div class="section-head">COMPANY TIMELINE — KEY EVENTS</div>
+          <div id="events-output">
+            <div class="loading">Loading events<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">PRICE STATISTICS</div>
+          <div id="price-stats-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">MOMENTUM TRACKER</div>
+          <div id="momentum-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <!-- ROW 3 -->
+        <div class="chart-wrap">
+          <div class="section-head">DAILY RANGE — HIGH/LOW SPREAD</div>
+          <div id="range-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">OPEN vs CLOSE — SESSION RESULT</div>
+          <div id="oc-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="section-head">SYSTEM STATUS</div>
+          <div id="system-output">
+            <div class="loading">Loading<span class="blink">_</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <span><span class="prompt-text">$</span> nebius group (nbis) — nasdaq listed · amsterdam hq · ai cloud infrastructure</span>
+      <span id="data-status">● connecting...</span>
+      <span id="last-refresh"></span>
+    </div>
+
+  </div>
+</div>
+
+<script src="./config.js"></script>
+<script type="module" src="./src/pages/nbis-dashboard.js"></script>
 </body>
 </html>
